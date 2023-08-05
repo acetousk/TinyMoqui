@@ -1,0 +1,63 @@
+plugins {
+  id 'application'
+    id 'groovy'
+
+}
+
+group 'com.acetousk'
+version '1.0-SNAPSHOT'
+
+repositories {
+  mavenCentral()
+}
+
+ext {
+  junitVersion = '5.9.2'
+}
+
+sourceCompatibility = '11'
+targetCompatibility = '11'
+
+tasks.withType(JavaCompile) {
+  options.encoding = 'UTF-8'
+}
+
+dependencies {
+    // groovy
+  implementation('org.apache.groovy:groovy:4.0.10')
+
+  // Freemarker
+  // Remember to change the version number in FtlTemplateRenderer and MNode class when upgrading
+  implementation 'org.freemarker:freemarker:2.3.32' // Apache 2.0
+
+  // SLF4J, Log4j 2 (note Log4j 2 is used by various libraries, best not to replace it even if mostly possible with SLF4J)
+  implementation 'org.slf4j:slf4j-api:2.0.7'
+
+  // Java Specifications
+  // api 'javax.transaction:jta:1.1'
+  // api 'javax.cache:cache-api:1.1.1'
+  // api 'javax.jcr:jcr:2.0'
+  // jaxb-api no longer included in Java 9 and later, also tested with openjdk-8
+  // api module('javax.xml.bind:jaxb-api:2.3.1') // CDDL 1.1
+  // NOTE: javax.activation:javax.activation-api is required by jaxb-api, has classes same as old 2012 javax.activation:activation used by javax.mail
+  // NOTE: as of Java 11 the com.sun packages no longer available so for javax.mail need full javax.activation jar (also includes javax.activation-api)
+  implementation 'com.sun.activation:javax.activation:1.2.0' // CDDL 1.1
+  // api 'javax.websocket:javax.websocket-api:1.1'
+  // TODO: this should be compileOnlyApi, but that was not included in Gradle 5... so cannot have excluded from
+  //     runtime in a single way for Gradle 5 and 7; for now leaving in api, not desirable because we don't want it in the war file
+  // api 'javax.servlet:javax.servlet-api:4.0.1'
+  // Specs not needed by default:
+  // api 'javax.resource:connector-api:1.5'
+  // api 'javax.jms:jms:1.1'
+
+  testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+}
+
+test {
+    useJUnitPlatform()
+}
+
+application {
+    mainClass = 'com.acetousk.GatherXml'
+}

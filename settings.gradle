@@ -1,0 +1,5 @@
+rootProject.name = "GatherXml"
+include('com.acetousk')
+include('org.moqui')
+include('org.moqui.resource')
+include('org.moqui.util')
