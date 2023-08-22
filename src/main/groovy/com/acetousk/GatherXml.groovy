@@ -47,7 +47,7 @@ class GatherXml {
         byte[] array = new byte[7]; // length is bounded by 7
         new Random().nextBytes(array);
         String generatedString = new String(array, Charset.forName("UTF-8"));
-        ResourceReference resourceResource = new UrlResourceReference().init("file:/home/user/play/GatherXml/src/main/resources")
+        ResourceReference resourceResource = new UrlResourceReference().init("file:/home/user/play/TinyMoqui/src/main/resources")
         ResourceReference dataOutputResource = resourceResource.makeFile("aData"+generatedString+".xml")
         File dataOutputFile = dataOutputResource.getFile()
         dataOutputFile << "<entity-facade-xml>\n"
