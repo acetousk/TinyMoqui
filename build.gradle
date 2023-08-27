@@ -23,19 +23,27 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
+  /////////// Database
+
+  // H2 Database
+  implementation 'com.h2database:h2:2.2.220' // MPL 2.0, EPL 1.0
+
+    /////////// Calcite
+  implementation 'org.apache.calcite:calcite-core:1.22.0'
+  // This dependency is used by the application.
+  implementation("com.google.guava:guava:28.0-jre")
+  implementation 'org.apache.commons:commons-dbcp2:2.9.0'
+
+  /////////// Moqui
   // groovy
   implementation('org.apache.groovy:groovy:4.0.10')
-
   // Apache Commons
   implementation 'commons-codec:commons-codec:1.16.0' // Apache 2.0
-
     // Freemarker
   // Remember to change the version number in FtlTemplateRenderer and MNode class when upgrading
   implementation 'org.freemarker:freemarker:2.3.32' // Apache 2.0
-
   // SLF4J, Log4j 2 (note Log4j 2 is used by various libraries, best not to replace it even if mostly possible with SLF4J)
   implementation 'org.slf4j:slf4j-api:2.0.7'
-
   // Java Specifications
   // api 'javax.transaction:jta:1.1'
   // api 'javax.cache:cache-api:1.1.1'

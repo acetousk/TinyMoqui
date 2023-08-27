@@ -32,22 +32,23 @@ class GatherXml {
 
         System.out.println("Start")
 
+        String initialMoquiDirectory = "/home/user/coarchy/moqui"
+        ResourceReference moquiRoot = new UrlResourceReference().init("file:" + initialMoquiDirectory)
+        ResourceReference resourceResource = new UrlResourceReference().init("file:/home/user/play/TinyMoqui/src/main/resources")
+        String generatedString = System.currentTimeMillis().toString()
+
         //////////////// Data
-        ResourceReference frameworkData = new UrlResourceReference().init("file:/home/user/coarchy/moqui/framework/data")
+        ResourceReference frameworkData = moquiRoot.findChildDirectory("framework/data")
         List<ResourceReference> dataDirectories = frameworkData.getDirectoryEntries();
-        ResourceReference baseComponentData = new UrlResourceReference().init("file:/home/user/coarchy/moqui/runtime/base-component")
+        ResourceReference baseComponentData = moquiRoot.findChildDirectory("runtime/base-component")
         for (ResourceReference rr in baseComponentData.getDirectoryEntries()) {
             dataDirectories.addAll(rr.getChild("data").getDirectoryEntries() as List<ResourceReference>)
         }
-        ResourceReference componentData = new UrlResourceReference().init("file:/home/user/coarchy/moqui/runtime/component")
+        ResourceReference componentData = moquiRoot.findChildDirectory("runtime/component")
         for (ResourceReference rr in componentData.getDirectoryEntries()) {
             dataDirectories.addAll(rr.getChild("data").getDirectoryEntries() as List<ResourceReference>)
         }
 
-        byte[] array = new byte[7]; // length is bounded by 7
-        new Random().nextBytes(array);
-        String generatedString = new String(array, Charset.forName("UTF-8"));
-        ResourceReference resourceResource = new UrlResourceReference().init("file:/home/user/play/TinyMoqui/src/main/resources")
         ResourceReference dataOutputResource = resourceResource.makeFile("aData"+generatedString+".xml")
         File dataOutputFile = dataOutputResource.getFile()
         dataOutputFile << "<entity-facade-xml>\n"
@@ -63,13 +64,13 @@ class GatherXml {
         dataOutputFile << "</entity-facade-xml>"
 
         //////////////// Entity
-        ResourceReference frameworkEntities = new UrlResourceReference().init("file:/home/user/coarchy/moqui/framework/entity")
+        ResourceReference frameworkEntities = moquiRoot.findChildDirectory("framework/entity")
         List<ResourceReference> entityDirectories = frameworkEntities.getDirectoryEntries();
-        ResourceReference baseComponentEntities = new UrlResourceReference().init("file:/home/user/coarchy/moqui/runtime/base-component")
+        ResourceReference baseComponentEntities = moquiRoot.findChildDirectory("runtime/base-component")
         for (ResourceReference rr in baseComponentEntities.getDirectoryEntries()) {
             entityDirectories.addAll(rr.getChild("entity").getDirectoryEntries() as List<ResourceReference>)
         }
-        ResourceReference componentEntities = new UrlResourceReference().init("file:/home/user/coarchy/moqui/runtime/component")
+        ResourceReference componentEntities = moquiRoot.findChildDirectory("runtime/component")
         for (ResourceReference rr in componentEntities.getDirectoryEntries()) {
             entityDirectories.addAll(rr.getChild("entity").getDirectoryEntries() as List<ResourceReference>)
         }
