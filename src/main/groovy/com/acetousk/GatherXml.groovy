@@ -32,7 +32,7 @@ class GatherXml {
 
         System.out.println("Start")
 
-        String initialMoquiDirectory = "/home/user/coarchy/moqui"
+        String initialMoquiDirectory = "/home/user/play/moqui"
         ResourceReference moquiRoot = new UrlResourceReference().init("file:" + initialMoquiDirectory)
         ResourceReference resourceResource = new UrlResourceReference().init("file:/home/user/play/TinyMoqui/src/main/resources")
         String generatedString = System.currentTimeMillis().toString()
