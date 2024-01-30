@@ -1,24 +1,24 @@
 package com.acetousk
 
-// Moqui
 import org.moqui.resource.ResourceReference
+
+// Moqui
+
 import org.moqui.resource.UrlResourceReference
 import org.moqui.util.MNode
-import org.moqui.util.SystemBinding
 import org.moqui.util.StringUtilities
-import java.nio.charset.Charset
+
+import java.sql.Connection
 
 // Sql
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+
+import java.sql.DriverManager
+import java.sql.SQLException
 import java.sql.Statement
 
 // Java
-import java.time.Instant;
 
-class DdlSqlGenerator {
+class SqlGenerator {
 
     static void main(String[] args) {
 
@@ -55,19 +55,21 @@ class DdlSqlGenerator {
                     List<MNode> fieldChildren = [];
                     List<MNode> indexChildren = [];
                     List<MNode> relationshipChildren = [];
-                    //            List<MNode> seedDataChildren = [];
-                    //            List<MNode> masterChildren = [];
+                    List<MNode> seedDataChildren = [];
+                    List<MNode> masterChildren = [];
 
                     for (MNode childChild in child.childList) {
                         if (childChild.nodeName == "field") fieldChildren.push(childChild);
                         else if (childChild.nodeName == "index") indexChildren.push(childChild);
                         else if (childChild.nodeName == "relationship") relationshipChildren.push(childChild);
+                        else if (childChild.nodeName == "seed-data") seedDataChildren.push(childChild);
+                        else if (childChild.nodeName == "master") masterChildren.push(childChild);
                     }
 
                     String entityName = StringUtilities.camelCaseToPretty(child.attribute("entity-name")).toUpperCase().replace(" ", "_")
 
                     // See createTables in EntityDbMeta.groovy
-                    StringBuilder sql = new StringBuilder("CREATE TABLE ")
+                    StringBuilder sql = new StringBuilder("CREATE TABLE IF NOT EXISTS ")
                             .append(entityName)
                             .append(" (");
 
@@ -108,6 +110,8 @@ class DdlSqlGenerator {
                         sql.append(primaryKeyFieldList[i])
                     }
                     sql.append("));\n")
+
+                    /////////////// create explicit and foreign key auto indexes
 
                     // See createIndexes in EntityDbMeta.groovy
                     for (MNode indexNode in indexChildren) {
@@ -209,6 +213,41 @@ class DdlSqlGenerator {
                             sql.append(");\n")
                         }
                     }*/
+                    /////////////// create foreign keys to all other tables that exist
+
+
+                    // See createExtended in EntityValueImpl.java
+                    /*
+                    for (MNode seedDataNode in seedDataChildren) {
+
+
+                        for (MNode entityNode in seedDataNode.children) {
+
+                            StringBuilder createSql = new StringBuilder(500);
+                            createSql.append("INSERT INTO ").append(StringUtilities.camelCaseToPretty(entityNode.nodeName.tokenize(".").last()).toUpperCase().replace(" ", "_")).append(" (");
+
+                            int size = entityNode.attributeMap.size();
+                            StringBuilder values = new StringBuilder(size*3);
+
+                            boolean isFirst = true
+                            entityNode.attributeMap.each{ key, value ->
+                                if (isFirst) {
+                                    isFirst = false
+                                } else {
+                                    sql.append(", ");
+                                    values.append(", ");
+                                }
+
+                                sql.append(StringUtilities.camelCaseToPretty(key).toUpperCase().replace(" ", "_"));
+                                values.append("?");
+                            }
+
+                            sql.append(") VALUES (").append(values.toString()).append(")");
+
+                            System.out.print("")
+                        }
+
+                    } */
 
                     entityOutputSqlFile << sql
                 }
@@ -239,11 +278,11 @@ class DdlSqlGenerator {
             System.out.println("Creating table in given database...");
             stmt = conn.createStatement();
 
-            for (String line in entityOutputSqlFile.getText().split("\n")) {
-                stmt.executeUpdate(line);
-            }
-            stmt.executeUpdate(entityOutputSqlFile.getText());
-            System.out.println("Created table in given database...");
+//            for (String line in entityOutputSqlFile.getText().split("\n")) {
+//                stmt.executeUpdate(line);
+//            }
+            int rowCount = stmt.executeUpdate(entityOutputSqlFile.getText());
+            System.out.println("Created ${rowCount} table in given database...");
 
             // STEP 4: Clean-up environment
             stmt.close();
@@ -261,11 +300,15 @@ class DdlSqlGenerator {
             } catch(SQLException se2) {
             } // nothing we can do
             try {
-                if(conn!=null) conn.close();
+                if(conn!=null) {
+                    conn.close();
+                }
             } catch(SQLException se){
                 se.printStackTrace();
             } //end finally try
         } //end try
+
+
 
         System.out.println("Done with ${databaseUrl}")
     }
